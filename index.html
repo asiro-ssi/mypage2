@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>保険金請求マイページ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F5F4F1;
+  --surface: #FFFFFF;
+  --surface2: #F9F8F6;
+  --border: #E5E3DE;
+  --border2: #D4D1CA;
+  --text-primary: #1A1916;
+  --text-secondary: #6B6860;
+  --text-muted: #9E9B94;
+  --blue-50: #EEF3FB;
+  --blue-100: #C5D9F5;
+  --blue-600: #185FA5;
+  --blue-800: #0C447C;
+  --amber-50: #FBF2E3;
+  --amber-100: #FAC775;
+  --amber-600: #854F0B;
+  --amber-800: #633806;
+  --green-50: #EAF3DE;
+  --green-600: #3B6D11;
+  --red-50: #FCEBEB;
+  --red-600: #A32D2D;
+  --accent: #185FA5;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --sidebar-w: 224px;
+  --header-h: 56px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans JP', 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 14px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Layout ── */
+.layout { display: grid; grid-template-columns: var(--sidebar-w) 1fr; grid-template-rows: var(--header-h) 1fr; min-height: 100vh; }
+
+/* ── Header ── */
+.header {
+  grid-column: 1 / -1;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 30px; height: 30px; background: var(--accent); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; }
+.logo-icon svg { width: 16px; height: 16px; }
+.logo-text { font-size: 14px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; }
+.logo-text span { font-weight: 400; color: var(--text-secondary); font-size: 12px; margin-left: 6px; }
+.h-spacer { flex: 1; }
+.h-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: var(--radius-md);
+  border: 1px solid var(--border); background: var(--surface);
+  cursor: pointer; position: relative; transition: background 0.15s;
+}
+.h-btn:hover { background: var(--surface2); }
+.h-btn-dot {
+  position: absolute; top: 7px; right: 8px; width: 7px; height: 7px;
+  border-radius: 50%; background: #E24B4A; border: 2px solid var(--surface);
+}
+.h-user {
+  display: flex; align-items: center; gap: 9px;
+  padding: 5px 12px; border-radius: var(--radius-md);
+  border: 1px solid var(--border); background: var(--surface);
+  cursor: pointer; transition: background 0.15s;
+}
+.h-user:hover { background: var(--surface2); }
+.h-avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--blue-50); border: 1px solid var(--blue-100);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600; color: var(--blue-800);
+}
+.h-uname { font-size: 13px; color: var(--text-primary); }
+.h-chevron { color: var(--text-muted); }
+
+/* ── Sidebar ── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 20px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: sticky;
+  top: var(--header-h);
+  height: calc(100vh - var(--header-h));
+  overflow-y: auto;
+}
+.s-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--text-muted);
+  padding: 10px 12px 5px;
+}
+.s-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 12px; border-radius: var(--radius-md);
+  font-size: 13px; color: var(--text-secondary);
+  cursor: pointer; transition: all 0.15s; position: relative;
+  text-decoration: none;
+}
+.s-item:hover { background: var(--surface2); color: var(--text-primary); }
+.s-item.active { background: var(--blue-50); color: var(--blue-800); font-weight: 500; }
+.s-item.active .s-icon { color: var(--blue-600); }
+.s-icon { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.6; }
+.s-item.active .s-icon { opacity: 1; }
+.s-badge {
+  margin-left: auto; background: var(--red-50); color: var(--red-600);
+  font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px;
+}
+.s-spacer { flex: 1; }
+.s-divider { height: 1px; background: var(--border); margin: 10px 0; }
+.s-foot {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 12px; border-radius: var(--radius-md);
+  font-size: 12px; color: var(--text-muted); cursor: pointer;
+  transition: background 0.15s;
+}
+.s-foot:hover { background: var(--surface2); color: var(--text-secondary); }
+
+/* ── Main ── */
+.main { padding: 28px 32px; display: flex; flex-direction: column; gap: 22px; overflow-y: auto; }
+
+/* ── Alert ── */
+.alert {
+  background: var(--amber-50);
+  border: 1px solid var(--amber-100);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px;
+  animation: slideDown 0.3s ease;
+}
+@keyframes slideDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+.alert-icon {
+  width: 20px; height: 20px; border-radius: 50%; background: #BA7517;
+  color: white; font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.alert-text { font-size: 13px; color: var(--amber-800); flex: 1; line-height: 1.5; }
+.alert-text strong { font-weight: 600; }
+.alert-btn {
+  padding: 6px 14px; border: 1px solid #BA7517; border-radius: var(--radius-md);
+  font-size: 12px; font-weight: 500; color: var(--amber-600); cursor: pointer;
+  white-space: nowrap; background: transparent; transition: background 0.15s;
+  font-family: inherit;
+}
+.alert-btn:hover { background: rgba(186,117,23,0.08); }
+
+/* ── Metrics ── */
+.metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.metric {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+}
+.metric-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+.metric-val { font-size: 26px; font-weight: 500; color: var(--text-primary); line-height: 1; }
+.metric-val span { font-size: 13px; font-weight: 400; color: var(--text-secondary); margin-left: 4px; }
+.metric-val.danger { color: #A32D2D; }
+
+/* ── Progress card ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+}
+.card-hd { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 18px; }
+.card-title-sm { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 2px; }
+.card-link { font-size: 12px; color: var(--accent); cursor: pointer; text-decoration: none; }
+.card-link:hover { text-decoration: underline; }
+.claim-num { font-size: 11px; color: var(--text-muted); margin-bottom: 3px; }
+.claim-name { font-size: 15px; font-weight: 500; color: var(--text-primary); }
+.claim-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+
+.badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+.b-amber { background: var(--amber-50); color: var(--amber-600); border: 1px solid var(--amber-100); }
+.b-green { background: var(--green-50); color: var(--green-600); }
+.b-blue { background: var(--blue-50); color: var(--blue-800); }
+.b-red { background: var(--red-50); color: var(--red-600); }
+.b-gray { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+
+/* ── Progress steps ── */
+.steps { display: flex; align-items: flex-start; margin-top: 4px; }
+.step { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
+.step:not(:last-child)::after {
+  content: ''; position: absolute; top: 11px; left: 55%; right: -55%;
+  height: 1.5px; background: var(--border2); z-index: 0;
+}
+.step.done:not(:last-child)::after { background: var(--blue-600); }
+.step.cur:not(:last-child)::after { background: var(--blue-100); }
+.step-c {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600; position: relative; z-index: 1;
+  transition: all 0.2s;
+}
+.step-c.done { background: var(--blue-600); color: white; }
+.step-c.cur { background: var(--blue-800); color: white; box-shadow: 0 0 0 4px var(--blue-100); }
+.step-c.todo { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border2); }
+.step-lbl { font-size: 10px; color: var(--text-muted); margin-top: 5px; text-align: center; line-height: 1.3; }
+.step.cur .step-lbl { color: var(--blue-800); font-weight: 500; }
+
+/* ── 2-col grid ── */
+.grid2 { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(0,1fr); gap: 18px; }
+
+/* ── Doc list ── */
+.doc-row {
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+.doc-row:last-of-type { border-bottom: none; }
+.doc-ic {
+  width: 32px; height: 34px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.doc-name { font-size: 13px; color: var(--text-primary); }
+.doc-meta { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.doc-meta.warn { color: var(--amber-600); font-weight: 500; }
+.doc-acts { flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+.ic-status {
+  width: 17px; height: 17px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700;
+}
+.ic-ok { background: var(--blue-600); color: white; }
+.ic-ng { background: #FAC775; color: #633806; }
+
+/* ── Upload zone ── */
+.upload-zone {
+  border: 1.5px dashed var(--border2);
+  border-radius: var(--radius-md);
+  padding: 22px 16px;
+  text-align: center;
+  cursor: pointer;
+  margin-top: 14px;
+  background: var(--surface2);
+  transition: border-color 0.2s, background 0.2s;
+}
+.upload-zone:hover { border-color: var(--blue-600); background: var(--blue-50); }
+.upload-zone.dragover { border-color: var(--blue-600); background: var(--blue-50); }
+.uz-circle {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 8px;
+}
+.uz-main { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+.uz-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+.uz-btn {
+  display: inline-block; margin-top: 10px;
+  padding: 6px 16px; border: 1px solid var(--border2);
+  border-radius: var(--radius-md); font-size: 12px; font-weight: 500;
+  color: var(--text-secondary); background: var(--surface);
+  cursor: pointer; transition: all 0.15s; font-family: inherit;
+}
+.uz-btn:hover { border-color: var(--accent); color: var(--accent); }
+#file-input { display: none; }
+
+/* ── Download list ── */
+.dl-row {
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.dl-row:last-child { border-bottom: none; }
+.dl-info { flex: 1; }
+.dl-name { font-size: 13px; color: var(--text-primary); }
+.dl-date { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.dl-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 13px; border: 1px solid var(--border2);
+  border-radius: 20px; font-size: 11px; font-weight: 500;
+  color: var(--text-secondary); cursor: pointer;
+  background: var(--surface); transition: all 0.15s;
+  font-family: inherit; white-space: nowrap;
+}
+.dl-btn:hover { border-color: var(--accent); color: var(--accent); }
+.dl-btn:disabled { opacity: 0.4; cursor: default; }
+.dl-btn:disabled:hover { border-color: var(--border2); color: var(--text-secondary); }
+
+/* ── Message ── */
+.msg-col { display: flex; flex-direction: column; height: 100%; }
+.msg-meta-bar {
+  background: var(--surface2); border-radius: var(--radius-sm);
+  padding: 8px 12px; margin-bottom: 14px;
+  font-size: 11px; color: var(--text-muted);
+  display: flex; align-items: center; gap: 8px;
+}
+.msg-meta-bar strong { font-weight: 600; color: var(--text-primary); }
+.msg-thread { flex: 1; display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.msg-wrap { display: flex; flex-direction: column; }
+.msg-wrap.me { align-items: flex-end; }
+.bubble {
+  padding: 9px 13px; border-radius: var(--radius-md);
+  font-size: 13px; line-height: 1.6; max-width: 90%;
+}
+.bubble.staff { background: var(--surface2); border: 1px solid var(--border); color: var(--text-primary); }
+.bubble.me { background: var(--blue-50); border: 1px solid var(--blue-100); color: var(--blue-800); }
+.msg-time { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+
+.msg-compose {
+  border: 1px solid var(--border2); border-radius: var(--radius-md); overflow: hidden;
+  transition: border-color 0.2s;
+}
+.msg-compose:focus-within { border-color: var(--blue-600); }
+.msg-compose textarea {
+  width: 100%; padding: 10px 14px;
+  font-size: 13px; border: none; outline: none;
+  background: var(--surface); color: var(--text-primary);
+  resize: none; line-height: 1.6; font-family: inherit;
+}
+.msg-compose textarea::placeholder { color: var(--text-muted); }
+.msg-toolbar {
+  padding: 8px 12px; border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2);
+}
+.tool-btn {
+  width: 28px; height: 28px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.15s;
+}
+.tool-btn:hover { border-color: var(--border2); background: var(--surface2); }
+.attach-label { font-size: 11px; color: var(--text-muted); }
+.send-btn {
+  margin-left: auto; padding: 7px 18px;
+  background: var(--accent); color: white; border: none;
+  border-radius: var(--radius-md); font-size: 13px; font-weight: 500;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.send-btn:hover { background: var(--blue-800); }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 32px; right: 32px;
+  background: var(--text-primary); color: white;
+  padding: 12px 18px; border-radius: var(--radius-md);
+  font-size: 13px; font-weight: 500;
+  display: flex; align-items: center; gap: 10px;
+  opacity: 0; transform: translateY(8px);
+  transition: all 0.3s; pointer-events: none; z-index: 999;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast-icon { width: 18px; height: 18px; border-radius: 50%; background: #2D9A5C; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+
+/* ── Modal overlay ── */
+.overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.35); z-index: 200;
+  align-items: center; justify-content: center;
+}
+.overlay.open { display: flex; animation: fadeIn 0.2s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal {
+  background: var(--surface); border-radius: var(--radius-lg);
+  padding: 28px 32px; width: 460px; max-width: 90%;
+  animation: scaleIn 0.2s;
+}
+@keyframes scaleIn { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.modal-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
+.modal-file-list { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
+.modal-file-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border: 1px solid var(--border);
+  border-radius: var(--radius-md); background: var(--surface2);
+}
+.mfi-name { font-size: 13px; flex: 1; }
+.mfi-size { font-size: 11px; color: var(--text-muted); }
+.mfi-rm { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; color: var(--text-muted); }
+.modal-select { margin-bottom: 20px; }
+.modal-select label { font-size: 12px; font-weight: 500; color: var(--text-secondary); display: block; margin-bottom: 6px; }
+.modal-select select {
+  width: 100%; padding: 8px 12px; border: 1px solid var(--border2);
+  border-radius: var(--radius-md); font-size: 13px; background: var(--surface);
+  color: var(--text-primary); font-family: inherit; outline: none;
+  transition: border-color 0.2s;
+}
+.modal-select select:focus { border-color: var(--accent); }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.btn-cancel {
+  padding: 8px 18px; border: 1px solid var(--border2); border-radius: var(--radius-md);
+  font-size: 13px; background: transparent; color: var(--text-secondary);
+  cursor: pointer; font-family: inherit;
+}
+.btn-submit {
+  padding: 8px 20px; background: var(--accent); color: white; border: none;
+  border-radius: var(--radius-md); font-size: 13px; font-weight: 500;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.btn-submit:hover { background: var(--blue-800); }
+
+/* ── Scroll ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 2L14 5.5V10.5L8 14L2 10.5V5.5L8 2Z" fill="white" opacity="0.9"/>
+        </svg>
+      </div>
+      <div class="logo-text">○○生命保険 <span>マイページ</span></div>
+    </div>
+    <div class="h-spacer"></div>
+    <div class="h-btn" title="お知らせ">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 1.5a4.5 4.5 0 0 1 4.5 4.5v3.5l1 1.5H2.5L3.5 9.5V6A4.5 4.5 0 0 1 8 1.5z" stroke="var(--text-secondary)" stroke-width="1.2" fill="none"/>
+        <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0" stroke="var(--text-secondary)" stroke-width="1.2" fill="none"/>
+      </svg>
+      <div class="h-btn-dot"></div>
+    </div>
+    <div class="h-user">
+      <div class="h-avatar">田</div>
+      <div class="h-uname">田中 一郎 様</div>
+      <svg class="h-chevron" width="11" height="11" viewBox="0 0 11 11" fill="none">
+        <path d="M2.5 4.5L5.5 7.5L8.5 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="s-label">メニュー</div>
+    <a class="s-item active" href="#">
+      <svg class="s-icon" viewBox="0 0 16 16" fill="none">
+        <rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.2"/>
+        <rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.2"/>
+        <rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.2"/>
+        <rect x="9" y="9" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.2"/>
+      </svg>
+      ダッシュボード
+    </a>
+    <a class="s-item" href="#">
+      <svg class="s-icon" viewBox="0 0 16 16" fill="none">
+        <path d="M2 3h12v10H2z" stroke="currentColor" stroke-width="1.2" fill="none" rx="1"/>
+        <path d="M5 7h6M5 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      請求案件一覧
+      <span class="s-badge">1</span>
+    </a>
+    <a class="s-item" href="#" onclick="document.querySelector('.upload-zone').scrollIntoView({behavior:'smooth'});return false;">
+      <svg class="s-icon" viewBox="0 0 16 16" fill="none">
+        <path d="M8 1v8M5 6l3 3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M2 11v3h12v-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      書類提出
+    </a>
+    <a class="s-item" href="#" onclick="document.querySelector('.msg-compose textarea').focus();return false;">
+      <svg class="s-icon" viewBox="0 0 16 16" fill="none">
+        <path d="M2 2h12v9H9l-3 3V11H2z" stroke="currentColor" stroke-width="1.2" fill="none"/>
+      </svg>
+      担当者メッセージ
+    </a>
+    <a class="s-item" href="#">
+      <svg class="s-icon" viewBox="0 0 16 16" fill="none">
+        <path d="M3 2h7l3 3v9H3z" stroke="currentColor" stroke-width="1.2" fill="none"/>
+        <path d="M10 2v3h3" stroke="currentColor" stroke-width="1.2" fill="none"/>
+      </svg>
+      書類ダウンロード
+    </a>
+    <div class="s-spacer"></div>
+    <div class="s-divider"></div>
+    <a class="s-foot" href="#">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M8 7v4M8 5.2v.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      よくある質問
+    </a>
+    <a class="s-foot" href="#">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+        <path d="M6 3H3v10h10v-3" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M9 2h5v5M14 2l-6 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      ログアウト
+    </a>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Alert -->
+    <div class="alert" id="alert-bar">
+      <div class="alert-icon">!</div>
+      <div class="alert-text"><strong>ご対応をお願いします：</strong>「診断書（原本）」の提出が確認できていません。審査を進めるため、早めにご提出ください。</div>
+      <button class="alert-btn" onclick="document.querySelector('.upload-zone').scrollIntoView({behavior:'smooth'})">書類を提出する</button>
+    </div>
+
+    <!-- Metrics -->
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">現在の請求案件数</div>
+        <div class="metric-val">1<span>件</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">未提出書類</div>
+        <div class="metric-val danger" id="pending-count">1<span>点</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">担当者からの未読メッセージ</div>
+        <div class="metric-val">2<span>件</span></div>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="card">
+      <div class="card-hd">
+        <div>
+          <div class="claim-num">案件番号：CLM-2024-0831　｜　担当：鈴木 恵子　｜　請求受付日：2024/10/15</div>
+          <div class="claim-name">入院給付金請求（2024年10月）</div>
+        </div>
+        <span class="badge b-amber">審査中</span>
+      </div>
+      <div class="steps">
+        <div class="step done">
+          <div class="step-c done">✓</div>
+          <div class="step-lbl">書類受付</div>
+        </div>
+        <div class="step done">
+          <div class="step-c done">✓</div>
+          <div class="step-lbl">記載内容<br>確認</div>
+        </div>
+        <div class="step cur">
+          <div class="step-c cur">3</div>
+          <div class="step-lbl">追加書類<br>待ち</div>
+        </div>
+        <div class="step todo">
+          <div class="step-c todo">4</div>
+          <div class="step-lbl">医療審査</div>
+        </div>
+        <div class="step todo">
+          <div class="step-c todo">5</div>
+          <div class="step-lbl">審査完了</div>
+        </div>
+        <div class="step todo">
+          <div class="step-c todo">6</div>
+          <div class="step-lbl">お支払い</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2-col -->
+    <div class="grid2">
+
+      <!-- Left col -->
+      <div style="display:flex;flex-direction:column;gap:18px">
+
+        <!-- Documents -->
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-title-sm">提出書類の状況</div>
+            <a class="card-link" href="#">すべて見る</a>
+          </div>
+
+          <div class="doc-row">
+            <div class="doc-ic">
+              <svg width="14" height="15" viewBox="0 0 14 16" fill="none">
+                <path d="M1.5 1.5h7.5l3.5 3.5v9.5h-11z" stroke="var(--text-muted)" stroke-width="1.1" fill="none"/>
+                <path d="M9 1.5v3.5h3.5" stroke="var(--text-muted)" stroke-width="1.1" fill="none"/>
+              </svg>
+            </div>
+            <div style="flex:1">
+              <div class="doc-name">保険金請求書</div>
+              <div class="doc-meta">2024/10/15 受理済み</div>
+            </div>
+            <div class="doc-acts">
+              <div class="ic-status ic-ok">✓</div>
+              <span class="badge b-green">受理</span>
+            </div>
+          </div>
+
+          <div class="doc-row">
+            <div class="doc-ic">
+              <svg width="14" height="15" viewBox="0 0 14 16" fill="none">
+                <path d="M1.5 1.5h7.5l3.5 3.5v9.5h-11z" stroke="var(--text-muted)" stroke-width="1.1" fill="none"/>
+                <path d="M9 1.5v3.5h3.5" stroke="var(--text-muted)" stroke-width="1.1" fill="none"/>
+              </svg>
+            </div>
+            <div style="flex:1">
+              <div class="doc-name">入院証明書</div>
+              <div class="doc-meta">2024/10/15 受理済み</div>
+            </div>
+            <div class="doc-acts">
+              <div class="ic-status ic-ok">✓</div>
+              <span class="badge b-green">受理</span>
+            </div>
+          </div>
+
+          <div class="doc-row">
+            <div class="doc-ic">
+              <svg width="14" height="15" viewBox="0 0 14 16" fill="none">
+                <path d="M1.5 1.5h7.5l3.5 3.5v9.5h-11z" stroke="#BA7517" stroke-width="1.1" fill="none"/>
+                <path d="M9 1.5v3.5h3.5" stroke="#BA7517" stroke-width="1.1" fill="none"/>
+              </svg>
+            </div>
+            <div style="flex:1">
+              <div class="doc-name">診断書（原本）</div>
+              <div class="doc-meta warn">要提出</div>
+            </div>
+            <div class="doc-acts">
+              <div class="ic-status ic-ng">!</div>
+              <span class="badge b-amber">未提出</span>
+            </div>
+          </div>
+
+          <!-- Upload zone -->
+          <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="handleDrop(event)">
+            <div class="uz-circle">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M8 11V4M5 7l3-3 3 3" stroke="var(--text-secondary)" stroke-width="1.4" stroke-linecap="round"/>
+                <path d="M2 13h12" stroke="var(--text-secondary)" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="uz-main">ここにファイルをドラッグ＆ドロップ</div>
+            <div class="uz-sub">または</div>
+            <button class="uz-btn" onclick="event.stopPropagation();document.getElementById('file-input').click()">ファイルを選択する</button>
+            <div class="uz-sub" style="margin-top:10px">PDF・JPG・PNG　各ファイル最大 10MB</div>
+          </div>
+          <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png" multiple onchange="handleFileSelect(this.files)">
+        </div>
+
+        <!-- Downloads -->
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-title-sm">書類ダウンロード</div>
+          </div>
+          <div class="dl-row">
+            <div class="doc-ic">
+              <svg width="14" height="15" viewBox="0 0 14 16" fill="none">
+                <path d="M1.5 1.5h7.5l3.5 3.5v9.5h-11z" stroke="var(--text-muted)" stroke-width="1.1" fill="none"/>
+                <path d="M9 1.5v3.5h3.5" stroke="var(--text-muted)" stroke-width="1.1" fill="none"/>
+              </svg>
+            </div>
+            <div class="dl-info">
+              <div class="dl-name">請求受付通知書</div>
+              <div class="dl-date">発行：2024/10/16</div>
+            </div>
+            <button class="dl-btn" onclick="showToast('ダウンロードを開始しました')">
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3.5 6l2.5 2.5L8.5 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M1 10.5h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              PDFを開く
+            </button>
+          </div>
+          <div class="dl-row">
+            <div class="doc-ic">
+              <svg width="14" height="15" viewBox="0 0 14 16" fill="none">
+                <path d="M1.5 1.5h7.5l3.5 3.5v9.5h-11z" stroke="var(--text-muted)" stroke-width="1.1" fill="none"/>
+                <path d="M9 1.5v3.5h3.5" stroke="var(--text-muted)" stroke-width="1.1" fill="none"/>
+              </svg>
+            </div>
+            <div class="dl-info">
+              <div class="dl-name">提出書類チェックリスト</div>
+              <div class="dl-date">発行：2024/10/15</div>
+            </div>
+            <button class="dl-btn" onclick="showToast('ダウンロードを開始しました')">
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3.5 6l2.5 2.5L8.5 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M1 10.5h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              PDFを開く
+            </button>
+          </div>
+          <div class="dl-row">
+            <div class="doc-ic" style="opacity:0.4">
+              <svg width="14" height="15" viewBox="0 0 14 16" fill="none">
+                <path d="M1.5 1.5h7.5l3.5 3.5v9.5h-11z" stroke="var(--text-muted)" stroke-width="1.1" fill="none"/>
+                <path d="M9 1.5v3.5h3.5" stroke="var(--text-muted)" stroke-width="1.1" fill="none"/>
+              </svg>
+            </div>
+            <div class="dl-info">
+              <div class="dl-name" style="color:var(--text-muted)">支払通知書</div>
+              <div class="dl-date">審査完了後に発行されます</div>
+            </div>
+            <button class="dl-btn" disabled>未発行</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right col: Message -->
+      <div class="card msg-col">
+        <div class="card-hd">
+          <div class="card-title-sm">担当者メッセージ</div>
+          <a class="card-link" href="#">履歴をすべて見る</a>
+        </div>
+        <div class="msg-meta-bar">
+          担当：<strong>鈴木 恵子</strong>　最終返信：2024/10/21 09:14
+        </div>
+        <div class="msg-thread" id="msg-thread">
+          <div class="msg-wrap">
+            <div class="bubble staff">田中様、このたびは保険金のご請求をいただきありがとうございます。書類を確認いたしました。</div>
+            <div class="msg-time">鈴木　2024/10/16 14:05</div>
+          </div>
+          <div class="msg-wrap">
+            <div class="bubble staff">診断書について、原本のご提出をお願いできますでしょうか。コピーは審査書類として受理できない場合がございます。</div>
+            <div class="msg-time">鈴木　2024/10/18 10:22</div>
+          </div>
+          <div class="msg-wrap me">
+            <div class="bubble me">ご連絡ありがとうございます。病院から取り寄せ中ですので、今週中にアップロードいたします。</div>
+            <div class="msg-time">2024/10/18 12:40</div>
+          </div>
+          <div class="msg-wrap">
+            <div class="bubble staff">承知いたしました。お待ちしております。ご不明点があればいつでもご連絡ください。</div>
+            <div class="msg-time">鈴木　2024/10/21 09:14</div>
+          </div>
+        </div>
+        <div class="msg-compose">
+          <textarea id="msg-text" rows="3" placeholder="担当者へのメッセージを入力してください…"></textarea>
+          <div class="msg-toolbar">
+            <label class="tool-btn" for="msg-attach" title="ファイルを添付">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                <path d="M12 6.5L6.5 12a3.5 3.5 0 0 1-4.95-4.95L7.05 1.55A2.5 2.5 0 1 1 10.6 5.1L5.05 10.65a1.5 1.5 0 0 1-2.12-2.12L8 3.5" stroke="var(--text-secondary)" stroke-width="1.2" fill="none"/>
+              </svg>
+              <input type="file" id="msg-attach" style="display:none" multiple>
+            </label>
+            <span class="attach-label">ファイルを添付</span>
+            <button class="send-btn" onclick="sendMessage()">送信する</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Upload confirm modal -->
+<div class="overlay" id="upload-modal">
+  <div class="modal">
+    <div class="modal-title">書類をアップロードしますか？</div>
+    <div class="modal-sub">以下のファイルを提出します。書類の種別を選択してください。</div>
+    <div class="modal-file-list" id="modal-file-list"></div>
+    <div class="modal-select">
+      <label>書類の種別</label>
+      <select id="doc-type">
+        <option value="">選択してください</option>
+        <option value="診断書（原本）" selected>診断書（原本）</option>
+        <option value="入院証明書">入院証明書</option>
+        <option value="その他">その他</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="btn-submit" onclick="confirmUpload()">提出する</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div class="toast-icon">✓</div>
+  <span id="toast-msg">完了しました</span>
+</div>
+
+<script>
+let pendingFiles = [];
+
+function handleFileSelect(files) {
+  pendingFiles = Array.from(files);
+  openModal();
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('dragover');
+  pendingFiles = Array.from(e.dataTransfer.files);
+  openModal();
+}
+
+function openModal() {
+  if (!pendingFiles.length) return;
+  const list = document.getElementById('modal-file-list');
+  list.innerHTML = pendingFiles.map((f, i) => `
+    <div class="modal-file-item" id="mfi-${i}">
+      <svg width="14" height="15" viewBox="0 0 14 16" fill="none" style="flex-shrink:0">
+        <path d="M1.5 1.5h7.5l3.5 3.5v9.5h-11z" stroke="var(--text-muted)" stroke-width="1.1" fill="none"/>
+        <path d="M9 1.5v3.5h3.5" stroke="var(--text-muted)" stroke-width="1.1" fill="none"/>
+      </svg>
+      <span class="mfi-name">${f.name}</span>
+      <span class="mfi-size">${(f.size/1024).toFixed(0)} KB</span>
+      <div class="mfi-rm" onclick="removeFile(${i})">×</div>
+    </div>
+  `).join('');
+  document.getElementById('upload-modal').classList.add('open');
+}
+
+function removeFile(i) {
+  document.getElementById('mfi-' + i).remove();
+}
+
+function closeModal() {
+  document.getElementById('upload-modal').classList.remove('open');
+  document.getElementById('file-input').value = '';
+  pendingFiles = [];
+}
+
+function confirmUpload() {
+  const type = document.getElementById('doc-type').value;
+  if (!type) { alert('書類の種別を選択してください'); return; }
+  closeModal();
+
+  // Update UI: mark as submitted
+  const rows = document.querySelectorAll('.doc-row');
+  rows.forEach(row => {
+    if (row.querySelector('.doc-meta.warn')) {
+      row.querySelector('.doc-name').textContent = type;
+      row.querySelector('.doc-meta').textContent = '提出済み（確認中）';
+      row.querySelector('.doc-meta').classList.remove('warn');
+      row.querySelector('.ic-status').className = 'ic-status ic-ok';
+      row.querySelector('.ic-status').textContent = '✓';
+      row.querySelector('.badge').className = 'badge b-blue';
+      row.querySelector('.badge').textContent = '確認中';
+    }
+  });
+
+  // Update alert
+  document.getElementById('alert-bar').style.display = 'none';
+  // Update metric
+  document.getElementById('pending-count').innerHTML = '0<span>点</span>';
+  document.getElementById('pending-count').classList.remove('danger');
+
+  showToast('書類をアップロードしました');
+}
+
+function sendMessage() {
+  const txt = document.getElementById('msg-text').value.trim();
+  if (!txt) return;
+  const thread = document.getElementById('msg-thread');
+  const now = new Date();
+  const t = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const div = document.createElement('div');
+  div.className = 'msg-wrap me';
+  div.innerHTML = `<div class="bubble me">${txt.replace(/</g,'&lt;')}</div><div class="msg-time">${t}</div>`;
+  thread.appendChild(div);
+  document.getElementById('msg-text').value = '';
+  div.scrollIntoView({ behavior: 'smooth' });
+  showToast('メッセージを送信しました');
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Enter key in message box
+document.getElementById('msg-text').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) sendMessage();
+});
+</script>
+</body>
+</html>
